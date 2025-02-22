@@ -1,6 +1,10 @@
 package com.vrushabh.newsapp_jetpack_compose.di
 
 import android.app.Application
+import androidx.room.Room
+import com.vrushabh.newsapp_jetpack_compose.data.local.NewsDao
+import com.vrushabh.newsapp_jetpack_compose.data.local.NewsDatabase
+import com.vrushabh.newsapp_jetpack_compose.data.local.NewsTypeConvertor
 import com.vrushabh.newsapp_jetpack_compose.data.manger.LocalUserMangerImpl
 import com.vrushabh.newsapp_jetpack_compose.domain.manger.LocalUserManger
 import com.vrushabh.newsapp_jetpack_compose.domain.usecases.app_entry.AppEntryUseCases
@@ -69,5 +73,26 @@ object AppModule {
             searchNews = SearchNews(newsRepository)
         )
     }
+
+    @Provides
+    @Singleton
+    fun provideNewsDatabase(
+        application: Application
+    ): NewsDatabase {
+        return Room.databaseBuilder(
+            context = application,
+            klass = NewsDatabase::class.java,
+            name = "news_db"
+        ).addTypeConverter(NewsTypeConvertor())
+            .fallbackToDestructiveMigration()
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideNewsDao(
+        newsDatabase: NewsDatabase
+    ): NewsDao = newsDatabase.newsDao
+
 }
 
