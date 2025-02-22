@@ -16,10 +16,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
+import com.vrushabh.newsapp_jetpack_compose.domain.usecases.app_entry.AppEntryUseCases
 import com.vrushabh.newsapp_jetpack_compose.presentation.onboarding.OnBoardingScreen
 import com.vrushabh.newsapp_jetpack_compose.ui.theme.NewsApp_JetPack_composeTheme
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var useCases: AppEntryUseCases
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
