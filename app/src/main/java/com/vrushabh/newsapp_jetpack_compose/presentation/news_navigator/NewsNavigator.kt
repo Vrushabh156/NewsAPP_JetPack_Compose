@@ -1,5 +1,6 @@
 package com.vrushabh.newsapp_jetpack_compose.presentation.news_navigator
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -24,6 +25,8 @@ import com.vrushabh.newsapp_jetpack_compose.presentation.home.HomeViewModel
 import com.vrushabh.newsapp_jetpack_compose.presentation.navgraph.Route
 import com.vrushabh.newsapp_jetpack_compose.presentation.news_navigator.components.BottomNavigationItem
 import com.vrushabh.newsapp_jetpack_compose.presentation.news_navigator.components.NewsBottomNavigation
+import com.vrushabh.newsapp_jetpack_compose.presentation.search.SearchScreen
+import com.vrushabh.newsapp_jetpack_compose.presentation.search.SearchViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -88,6 +91,10 @@ fun NewsNavigator() {
                     navigate = { navigateToTab(navController = navController, route = it) })
             }
             composable(route = Route.SearchScreen.route) {
+                val viewModel: SearchViewModel = hiltViewModel()
+                val state = viewModel.state.value
+                OnBackClickStateSaver(navController = navController)
+                SearchScreen(state = state, event = viewModel::onEvent)
             }
             composable(route = Route.DetailsScreen.route) {
 
@@ -98,6 +105,17 @@ fun NewsNavigator() {
         }
     }
 }
+
+@Composable
+fun OnBackClickStateSaver(navController: NavController) {
+    BackHandler(true) {
+        navigateToTab(
+            navController = navController,
+            route = Route.HomeScreen.route
+        )
+    }
+}
+
 
 private fun navigateToTab(navController: NavController, route: String) {
     navController.navigate(route) {
