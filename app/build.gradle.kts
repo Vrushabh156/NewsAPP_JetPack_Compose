@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -6,6 +8,39 @@ plugins {
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.kotlin.parcelize)
 }
+
+// Case 1:
+//If you only need the API key (one or more than one) and want to delay loading until it's actually needed,
+// then this snippet with lazy initialization is more appropriate.
+
+val apiKey: String by lazy {
+    val properties = Properties()
+    val localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        localPropertiesFile.inputStream().use { stream ->
+            properties.load(stream)
+        }
+    }
+    properties.getProperty("NEWS_API_KEY", "")
+}
+
+//Case 2:
+//If you need to work with multiple properties, then this snippet might be more convenient.
+
+//Example:
+
+//apiKey=your_actual_api_key_here
+//databaseUrl=https://your.database.url
+//featureFlag=true
+
+/*
+val localProperties = Properties().apply {
+    val localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        localPropertiesFile.inputStream().use { load(it) }
+    }
+}
+*/
 
 android {
     namespace = "com.vrushabh.newsapp_jetpack_compose"
@@ -19,6 +54,16 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        //Case 1:
+        buildConfigField("String", "API_KEY", "\"$apiKey\"")
+
+        //Case 2:
+        /* buildConfigField(
+            "String",
+            "API_KEY",
+            "\"${localProperties.getProperty("NEWS_API_KEY") ?: ""}\""
+        )  */
     }
 
     buildTypes {
@@ -39,6 +84,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

@@ -2,19 +2,19 @@ package com.vrushabh.newsapp_jetpack_compose.presentation.onboarding
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.vrushabh.newsapp_jetpack_compose.domain.usecases.app_entry.AppEntryUseCases
+import com.vrushabh.newsapp_jetpack_compose.domain.usecases.app_entry.SaveAppEntry
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class OnBoardingViewModel @Inject constructor(
-    private val appEntryUseCases: AppEntryUseCases
+    private val saveAppEntry: SaveAppEntry
 ) : ViewModel() {
 
-    fun onEvent(event: OnBoardingEvent){
-        when(event){
-            is OnBoardingEvent.SaveAppEntry ->{
+    fun onEvent(event: OnBoardingEvent) {
+        when (event) {
+            is OnBoardingEvent.SaveAppEntry -> {
                 saveUserEntry()
             }
         }
@@ -22,7 +22,7 @@ class OnBoardingViewModel @Inject constructor(
 
     private fun saveUserEntry() {
         viewModelScope.launch {
-            appEntryUseCases.saveAppEntry()
+            saveAppEntry()
         }
     }
 
