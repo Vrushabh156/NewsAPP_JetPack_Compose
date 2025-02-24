@@ -5,13 +5,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -20,6 +26,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.vrushabh.newsapp_jetpack_compose.R
+import com.vrushabh.newsapp_jetpack_compose.data.manger.ConnectionState
+import com.vrushabh.newsapp_jetpack_compose.data.manger.NewsConnectivityManger
 import com.vrushabh.newsapp_jetpack_compose.domain.model.Article
 import com.vrushabh.newsapp_jetpack_compose.presentation.bookmark.BookmarkScreen
 import com.vrushabh.newsapp_jetpack_compose.presentation.bookmark.BookmarkViewModel
@@ -32,9 +40,12 @@ import com.vrushabh.newsapp_jetpack_compose.presentation.news_navigator.componen
 import com.vrushabh.newsapp_jetpack_compose.presentation.news_navigator.components.NewsBottomNavigation
 import com.vrushabh.newsapp_jetpack_compose.presentation.search.SearchScreen
 import com.vrushabh.newsapp_jetpack_compose.presentation.search.SearchViewModel
+import kotlinx.coroutines.launch
 
 @Composable
-fun NewsNavigator() {
+fun NewsNavigator(
+    newsConnectivityManger: NewsConnectivityManger
+) {
 
     val bottomNavigationItems = remember {
         listOf(
@@ -63,32 +74,63 @@ fun NewsNavigator() {
                 backStackState?.destination?.route == Route.BookmarkScreen.route
     }
 
-    Scaffold(modifier = Modifier.fillMaxSize(), bottomBar = {
-        if (isBottomBarVisible) {
-            NewsBottomNavigation(
-                items = bottomNavigationItems,
-                selectedItem = selectedItem,
-                onItemClick = { index ->
-                    when (index) {
-                        0 -> navigateToTab(
-                            navController = navController,
-                            route = Route.HomeScreen.route
-                        )
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
 
-                        1 -> navigateToTab(
-                            navController = navController,
-                            route = Route.SearchScreen.route
-                        )
+    val noInternetConnectionText = stringResource(id = R.string.no_internet_connection)
+    LaunchedEffect(key1 = true) {
+        newsConnectivityManger.connectionState.collect {
+            when (it) {
+                ConnectionState.Connected -> {
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                }
 
-                        2 -> navigateToTab(
-                            navController = navController,
-                            route = Route.BookmarkScreen.route
+                ConnectionState.NotConnected -> {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            noInternetConnectionText,
+                            duration = SnackbarDuration.Indefinite
                         )
                     }
                 }
-            )
+
+                ConnectionState.Unknown -> {
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                }
+            }
+
         }
-    }) {
+
+    }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        modifier = Modifier.fillMaxSize(), bottomBar = {
+            if (isBottomBarVisible) {
+                NewsBottomNavigation(
+                    items = bottomNavigationItems,
+                    selectedItem = selectedItem,
+                    onItemClick = { index ->
+                        when (index) {
+                            0 -> navigateToTab(
+                                navController = navController,
+                                route = Route.HomeScreen.route
+                            )
+
+                            1 -> navigateToTab(
+                                navController = navController,
+                                route = Route.SearchScreen.route
+                            )
+
+                            2 -> navigateToTab(
+                                navController = navController,
+                                route = Route.BookmarkScreen.route
+                            )
+                        }
+                    }
+                )
+            }
+        }) {
         val bottomPadding = it.calculateBottomPadding()
         NavHost(
             navController = navController,

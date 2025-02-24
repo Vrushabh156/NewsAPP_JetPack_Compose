@@ -1,6 +1,5 @@
 package com.vrushabh.newsapp_jetpack_compose.data.remote
 
-import android.util.Log
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.vrushabh.newsapp_jetpack_compose.domain.model.Article

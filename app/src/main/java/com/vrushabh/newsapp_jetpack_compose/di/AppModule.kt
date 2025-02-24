@@ -5,6 +5,7 @@ import androidx.room.Room
 import com.vrushabh.newsapp_jetpack_compose.data.local.NewsDao
 import com.vrushabh.newsapp_jetpack_compose.data.local.NewsDatabase
 import com.vrushabh.newsapp_jetpack_compose.data.local.NewsTypeConvertor
+import com.vrushabh.newsapp_jetpack_compose.data.manger.NewsConnectivityManger
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -49,6 +50,13 @@ object AppModule {
     fun provideNewsDao(
         newsDatabase: NewsDatabase
     ): NewsDao = newsDatabase.newsDao
+
+    @Provides
+    @Singleton
+    fun provideConnectivityManager(
+        application: Application
+    ) = NewsConnectivityManger(application)
+
 
 }
 

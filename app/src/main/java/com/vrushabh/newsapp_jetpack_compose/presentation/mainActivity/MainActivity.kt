@@ -15,17 +15,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.vrushabh.newsapp_jetpack_compose.data.manger.NewsConnectivityManger
 import com.vrushabh.newsapp_jetpack_compose.presentation.navgraph.NavGraph
 import com.vrushabh.newsapp_jetpack_compose.ui.theme.NewsApp_JetPack_composeTheme
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val viewModel by viewModels<MainViewModel>()
 
+    @Inject
+    lateinit var newsConnectivityManger: NewsConnectivityManger
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         installSplashScreen().apply {
@@ -36,6 +42,7 @@ class MainActivity : ComponentActivity() {
 
                 val isSystemInDarkMode = isSystemInDarkTheme()
                 val systemUiColor = rememberSystemUiController()
+
                 SideEffect {
                     systemUiColor.setSystemBarsColor(
                         color = Color.Transparent,
@@ -49,7 +56,10 @@ class MainActivity : ComponentActivity() {
                         .background(MaterialTheme.colorScheme.background)
                         .fillMaxSize()
                 ) {
-                    NavGraph(startDestination = viewModel.startDestination.value)
+                    NavGraph(
+                        startDestination = viewModel.startDestination.value,
+                        newsConnectivityManger = newsConnectivityManger
+                    )
                 }
             }
         }

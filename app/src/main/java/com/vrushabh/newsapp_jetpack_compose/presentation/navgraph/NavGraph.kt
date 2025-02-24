@@ -6,13 +6,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
+import com.vrushabh.newsapp_jetpack_compose.data.manger.NewsConnectivityManger
 import com.vrushabh.newsapp_jetpack_compose.presentation.news_navigator.NewsNavigator
 import com.vrushabh.newsapp_jetpack_compose.presentation.onboarding.OnBoardingScreen
 import com.vrushabh.newsapp_jetpack_compose.presentation.onboarding.OnBoardingViewModel
 
 @Composable
 fun NavGraph(
-    startDestination: String
+    startDestination: String,
+    newsConnectivityManger: NewsConnectivityManger
 ) {
     val navController = rememberNavController()
 
@@ -33,8 +35,8 @@ fun NavGraph(
             route = Route.NewsNavigation.route,
             startDestination = Route.NewsNavigatorScreen.route
         ) {
-            composable(route = Route.NewsNavigatorScreen.route){
-                NewsNavigator()
+            composable(route = Route.NewsNavigatorScreen.route) {
+                NewsNavigator(newsConnectivityManger)
             }
         }
     }
